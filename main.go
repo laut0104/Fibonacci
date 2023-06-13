@@ -2,19 +2,17 @@ package main
 
 import (
 	"fmt"
+	"net/http"
+
+	"github.com/laut0104/Fibonacci/handler"
 )
 
 func main() {
+	server := http.Server{
+		Addr: ":8080",
+	}
+	http.HandleFunc("/fib", handler.Fib)
+	server.ListenAndServe()
 	var n int
 	fmt.Scan(&n)
-
-	ans := fib(n)
-	fmt.Println(ans)
-}
-
-func fib(n int) int {
-	if n <= 1 {
-		return n
-	}
-	return (fib(n-1) + fib(n-2))
 }
