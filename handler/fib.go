@@ -19,6 +19,7 @@ func Fib(w http.ResponseWriter, r *http.Request) {
 		if v == nil {
 			return
 		}
+		// nが大きすぎるとオーバーフロー起こす気がするけどそこまで考慮する必要あるのか？
 		n, err := strconv.Atoi(v.Get("n"))
 		if err != nil {
 			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
@@ -30,7 +31,6 @@ func Fib(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		ans := getFib(n)
-		fmt.Println("ans")
 		res := Answer{
 			Result: ans,
 		}
@@ -40,7 +40,7 @@ func Fib(w http.ResponseWriter, r *http.Request) {
 		}
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(output)
-	// Get 意外だとerror
+	// "Get" 意外だとerror
 	default:
 		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
 	}
