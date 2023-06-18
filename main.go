@@ -4,31 +4,63 @@ import (
 	"fmt"
 	"log"
 	"math/big"
+	"net/http"
 	"strconv"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 )
 
+var (
+	BadRequest = events.APIGatewayProxyResponse{
+		StatusCode: http.StatusBadRequest,
+		Body:       `{"status": 400, "message": "` + http.StatusText(http.StatusBadRequest) + `."}`,
+	}
+	MethodNotAllowed = events.APIGatewayProxyResponse{
+		StatusCode: http.StatusMethodNotAllowed,
+		Body:       `{"status": 405, "message": "` + http.StatusText(http.StatusMethodNotAllowed) + `."}`,
+	}
+)
+
 func fib(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	a := big.NewInt(0)
-	b := big.NewInt(1)
+	log.Println(request)
+	switch request.HTTPMethod {
+	case "GET":
+		a := big.NewInt(0)
+		b := big.NewInt(1)
 
-	n, err := strconv.Atoi(request.QueryStringParameters["n"])
-	if err != nil {
-		return events.APIGatewayProxyResponse{}, err
+		q := request.QueryStringParameters["n"]
+		if q == "" {
+			return BadRequest, nil
+		}
+
+		n, err := strconv.Atoi(q)
+		if err != nil {
+			log.Println(err)
+			return events.APIGatewayProxyResponse{
+				StatusCode: http.StatusBadRequest,
+				Body:       `{"status": 400, "message":` + err.Error() + `}`,
+			}, err
+		}
+		if n < 1 {
+			return events.APIGatewayProxyResponse{
+				StatusCode: http.StatusBadRequest,
+				Body:       `{"status": 400, "message": "n is a natural number."}`,
+			}, nil
+		}
+
+		for i := 0; i < n; i++ {
+			a.Add(a, b)
+			a, b = b, a
+		}
+
+		return events.APIGatewayProxyResponse{
+			StatusCode: http.StatusOK,
+			Body:       `{"result":` + fmt.Sprintf("%s", a) + `}`,
+		}, nil
+	default:
+		return MethodNotAllowed, nil
 	}
-
-	for i := 0; i < n; i++ {
-		a.Add(a, b)
-		a, b = b, a
-	}
-
-	log.Println(a, b)
-	return events.APIGatewayProxyResponse{
-		StatusCode: 200,
-		Body:       `{"result":` + fmt.Sprintf("%s", a) + `}`,
-	}, nil
 }
 
 func main() {
