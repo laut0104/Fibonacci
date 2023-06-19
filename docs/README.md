@@ -1,9 +1,9 @@
-# Fibonacci
+# Fibonacci API
 ## Description
 クエリパラメータとしてnを指定し、指定されたn番目のフィボナッチ数を返すAPI
 
 ## 構成
-<img src="docs/fibonacci_resources.png" alt="resources img">
+<img src="fibonacci_resources.png" alt="resources img">
 
 - 使用するAWSリソース (ロール・ポリシーを除く)
   - Lambda
