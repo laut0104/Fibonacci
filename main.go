@@ -24,6 +24,7 @@ var (
 
 func fib(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	log.Println(request)
+	log.Println("test")
 	switch request.HTTPMethod {
 	case "GET":
 		a := big.NewInt(0)
